@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: eventdb
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Montando o script SQL
+    ports:
+      - "5432:5432"
+
+  events-service:
+    build:
+      context: ./api/events-service
+    environment:
+      - DATABASE_URL=postgres://postgres:mysecretpassword@db:5432/eventdb
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+
+volumes:
+  event_db_data:
